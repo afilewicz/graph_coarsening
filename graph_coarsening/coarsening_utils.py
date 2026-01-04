@@ -14,15 +14,15 @@ from . import maxWeightMatching
 
 
 def coarsen(
-    G,
-    K=10,
-    r=0.5,
-    max_levels=10,
-    method="variation_neighborhood",
-    algorithm="greedy",
-    Uk=None,
-    lk=None,
-    max_level_r=0.99,
+        G,
+        K=10,
+        r=0.5,
+        max_levels=10,
+        method="variation_neighborhood",
+        algorithm="greedy",
+        Uk=None,
+        lk=None,
+        max_level_r=0.99,
 ):
     """
     This function provides a common interface for coarsening algorithms that contract subgraphs
@@ -36,7 +36,7 @@ def coarsen(
         The desired reduction defined as 1 - n/N.
     method : String
         ['variation_neighborhoods', 'variation_edges', 'variation_cliques', 'heavy_edge', 'algebraic_JC', 'affinity_GS', 'kron'] 
-    
+
     Returns
     -------
     C : np.array of size n x N
@@ -200,7 +200,6 @@ def get_coarsening_matrix(G, partitioning):
 
     rows_to_delete = []
     for subgraph in partitioning:
-
         nc = len(subgraph)
 
         # add v_j's to v_i's row
@@ -309,8 +308,8 @@ def coarsening_quality(G, C, kmax=30, Uk=None, lk=None):
         error_subspace[kIdx] = np.abs(np.linalg.norm(M[:, : kIdx + 1], ord=2) - 1)
         #        error_subspace_bound[kIdx] = np.linalg.norm( M_bound[:,:kIdx + 1], ord=2)
         error_sintheta[kIdx] = (
-            np.linalg.norm(metrics["angle_matrix"][0 : kIdx + 1, kIdx + 1 :], ord="fro")
-            ** 2
+                np.linalg.norm(metrics["angle_matrix"][0: kIdx + 1, kIdx + 1:], ord="fro")
+                ** 2
         )
 
     metrics["error_subspace"] = error_subspace
@@ -321,7 +320,7 @@ def coarsening_quality(G, C, kmax=30, Uk=None, lk=None):
 
 
 def plot_coarsening(
-    Gall, Call, size=3, edge_width=0.8, node_size=20, alpha=0.55, title=""
+        Gall, Call, size=3, edge_width=0.8, node_size=20, alpha=0.55, title=""
 ):
     """
     Plot a (hierarchical) coarsening
@@ -464,7 +463,7 @@ def contract_variation_edges(G, A=None, K=10, r=0.5, algorithm="greedy"):
 
     # cost function for the edge
     def subgraph_cost(G, A, edge):
-        edge, w = edge[:2].astype(np.int), edge[2]
+        edge, w = edge[:2].astype(int), edge[2]
         deg_new = 2 * deg[edge] - w
         L = np.array([[deg_new[0], -w], [-w, deg_new[1]]])
         B = Pibot @ A[edge, :]
@@ -538,7 +537,7 @@ def contract_variation_linear(G, A=None, K=10, r=0.5, mode="neighborhood"):
             return self.cost < other.cost
 
     family = []
-    W_bool = G.A + sp.sparse.eye(G.N, dtype=np.bool, format="csr")
+    W_bool = G.A + sp.sparse.eye(G.N, dtype=bool, format="csr")
     if "neighborhood" in mode:
         for i in range(N):
             # i_set = G.A[i,:].indices # graph_utils.get_neighbors(G, i)
@@ -549,7 +548,7 @@ def contract_variation_linear(G, A=None, K=10, r=0.5, mode="neighborhood"):
     if "cliques" in mode:
         import networkx as nx
 
-        Gnx = nx.from_scipy_sparse_matrix(G.W)
+        Gnx = nx.from_scipy_sparse_array(G.W)
         for clique in nx.find_cliques(Gnx):
             family.append(CandidateSet(np.array(clique)))
 
@@ -571,7 +570,7 @@ def contract_variation_linear(G, A=None, K=10, r=0.5, mode="neighborhood"):
                 family.append(CandidateSet(triangle))
 
     family = SortedList(family)
-    marked = np.zeros(G.N, dtype=np.bool)
+    marked = np.zeros(G.N, dtype=bool)
 
     # ----------------------------------------------------------------------------
     # Construct a (minimum weight) independent set.
@@ -624,7 +623,6 @@ def contract_variation_linear(G, A=None, K=10, r=0.5, mode="neighborhood"):
 
 
 def get_proximity_measure(G, name, K=10):
-
     N = G.N
     W = G.W  # np.array(G.W.toarray(), dtype=np.float32)
     deg = G.dw  # np.sum(W, axis=0)
@@ -683,7 +681,7 @@ def get_proximity_measure(G, name, K=10):
         for e in range(0, M):
             i, j = edges[:, e]
             c[i, j] = (X_gs[i, :] @ X_gs[j, :].T) ** 2 / (
-                (X_gs[i, :] @ X_gs[i, :].T) ** 2 * (X_gs[j, :] @ X_gs[j, :].T) ** 2
+                    (X_gs[i, :] @ X_gs[i, :].T) ** 2 * (X_gs[j, :] @ X_gs[j, :].T) ** 2
             )  # select
 
         c += c.T
@@ -699,7 +697,7 @@ def get_proximity_measure(G, name, K=10):
 
         if name == "heavy_edge_degree":
             proximity[e] = (
-                deg[i] + deg[j] + 2 * G.W[i, j]
+                    deg[i] + deg[j] + 2 * G.W[i, j]
             )  # select edges with large proximity
 
         # loose as little information as possible (custom)
@@ -757,9 +755,9 @@ def get_proximity_measure(G, name, K=10):
                     [
                         proximity[e],
                         (
-                            (xk[i] - xk[j]) ** 2
-                            * ((deg[i] + deg[j] + 2 * G.W[i, j]) / 4 - 0 * lk)
-                            / lk
+                                (xk[i] - xk[j]) ** 2
+                                * ((deg[i] + deg[j] + 2 * G.W[i, j]) / 4 - 0 * lk)
+                                / lk
                         ),
                     ]
                 )  # select edges with small proximity
@@ -780,9 +778,8 @@ def get_proximity_measure(G, name, K=10):
 
 
 def generate_test_vectors(
-    G, num_vectors=10, method="Gauss-Seidel", iterations=5, lambda_cut=0.1
+        G, num_vectors=10, method="Gauss-Seidel", iterations=5, lambda_cut=0.1
 ):
-
     L = G.L
     N = G.N
     X = np.random.randn(N, num_vectors) / np.sqrt(N)
@@ -932,7 +929,7 @@ def matching_greedy(G, weights, r=0.4):
     matching = []
 
     # which vertices have been selected
-    marked = np.zeros(N, dtype=np.bool)
+    marked = np.zeros(N, dtype=bool)
 
     n, n_target = N, (1 - r) * N
     while len(candidate_edges) > 0:
@@ -962,7 +959,6 @@ def matching_greedy(G, weights, r=0.4):
 # Most of the code has been adapted from the PyGSP implementation.
 ##############################################################################
 def kron_coarsening(G, r=0.5, m=None):
-
     if not hasattr(G, "coords"):
         G.set_coordinates(np.random.rand(G.N, 2))  # needed by kron
 
@@ -997,7 +993,6 @@ def kron_coarsening(G, r=0.5, m=None):
 
 
 def kron_quality(G, Gc, kmax=30, Uk=None, lk=None):
-
     N, n = G.N, Gc.N
     keep_inds = Gc.mr["idx"]
 
@@ -1063,15 +1058,15 @@ def kron_interpolate(G, Gc, x):
 
 
 def my_graph_multiresolution(
-    G,
-    levels,
-    r=0.5,
-    sparsify=True,
-    sparsify_eps=None,
-    downsampling_method="largest_eigenvector",
-    reduction_method="kron",
-    compute_full_eigen=False,
-    reg_eps=0.005,
+        G,
+        levels,
+        r=0.5,
+        sparsify=True,
+        sparsify_eps=None,
+        downsampling_method="largest_eigenvector",
+        reduction_method="kron",
+        compute_full_eigen=False,
+        reg_eps=0.005,
 ):
     r"""Compute a pyramid of graphs (by Kron reduction).
 
@@ -1187,7 +1182,6 @@ def my_graph_multiresolution(
 
 
 def graph_sparsify(M, epsilon, maxiter=10):
-
     from pygsp import utils
     from scipy import sparse, stats
 
@@ -1268,6 +1262,5 @@ def graph_sparsify(M, epsilon, maxiter=10):
         Mnew = sparse.lil_matrix(sparserL)
 
     return Mnew
-
 
 ##############################################################################
