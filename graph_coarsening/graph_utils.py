@@ -132,4 +132,3 @@ def is_symmetric(As):
     check = np.allclose(vl, vu)
 
     return check
-
